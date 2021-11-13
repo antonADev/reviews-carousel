@@ -1,6 +1,6 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/antonADev/demo-repo/total?logo=GitHub&logoColor=orange)
 ![Twitter Follow](https://img.shields.io/twitter/follow/antonioaurello?style=social)
-
+![GitHub](https://img.shields.io/github/license/antonadev/reviews-carousel)
 
 # Review Carousel
 
