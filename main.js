@@ -6,7 +6,7 @@ const reviewPara = document.querySelector(".review-para");
 
 const randomButton = document.querySelector("[data-button]");
 const arrowButtons = document.querySelectorAll("[data-arrow]");
-
+const dotContainer = document.querySelector(".dots");
 // Here I've defined a count variable that keeps track of which review is currently displayed.
 let count = 0;
 
@@ -54,8 +54,10 @@ const reviews = [
   },
 ];
 
+// Functions
+
 // This is the function that checks if the name.first and name.last are uppercased. If not, it will uppercase the names.
-function upperCaseName(first, last) {
+const upperCaseName = function (first, last) {
   if (
     first.charAt(0) !== first.charAt(0).toUpperCase() ||
     last.charAt(0) !== last.charAt(0).toUpperCase()
@@ -66,10 +68,10 @@ function upperCaseName(first, last) {
   } else {
     return `${first} ${last}`;
   }
-}
+};
 
 // Belows function is the one that displays everything. I've gave it an input, in this case count, so that it will display the object on the array position of count.
-function updateDisplay(count) {
+const updateDisplay = function (count) {
   imageElement.setAttribute("src", `${reviews[count].image}`);
   nameHeader.textContent = upperCaseName(
     reviews[count].name.first,
@@ -77,38 +79,71 @@ function updateDisplay(count) {
   );
   jobPara.textContent = reviews[count].job;
   reviewPara.textContent = reviews[count].review;
-}
-
-// This first listener gets triggered on load, and it displays the standard object choosed by me by declaring at the beginning count equals to 0.
-window.addEventListener("load", () => {
-  updateDisplay(count);
-});
+};
 
 // Here, the forEach() method, targets both the arrow buttons, and assigns them a listener, this time a click listener. And then, with the help of a nested if statement checks
 // on the click of the left arrow if count is lesserEqual of 0 it should return, if not, it has to decrement count and trigger the updateDisplay() function
 // or on the click of the right arrow if count is greaterEqual of the array length it should return, if not, it has to increment the count and trigger the updateDisplay() function.
-arrowButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    if (button.classList[0] === "arrow-btn-left") {
-      if (count <= 0) {
-        return;
-      } else {
-        count--;
-        updateDisplay(count);
+const moveTheSlider = function () {
+  arrowButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.classList[0] === "arrow-btn-left") {
+        if (count <= 0) {
+          count = reviews.length - 1;
+          updateDisplay(count);
+        } else {
+          count--;
+          updateDisplay(count);
+        }
       }
-    }
-    if (button.classList[0] === "arrow-btn-right") {
-      if (count >= reviews.length - 1) {
-        return;
-      } else {
-        count++;
-        updateDisplay(count);
+      if (button.classList[0] === "arrow-btn-right") {
+        if (count >= reviews.length - 1) {
+          count = 0;
+          updateDisplay(count);
+        } else {
+          count++;
+          updateDisplay(count);
+        }
       }
-    }
+      activateDot(count);
+    });
   });
-});
+};
 
-// This last listener, gets fired when the randomButton is clicked and it creates a random number between 0 and the array length, update the count with that number (I've updated the count with the random number
+// This function creates dinamically the dots in base on how reviews we have
+const createDots = function () {
+  reviews.forEach(function (_, i) {
+    dotContainer.insertAdjacentHTML(
+      "beforeend",
+      `<button class="dots__dot" data-slide="${i}"></button>`
+    );
+  });
+};
+
+// This function activates the corresponding dot to the review
+const activateDot = function (slide) {
+  document
+    .querySelectorAll(".dots__dot")
+    .forEach((dot) => dot.classList.remove("dots__dot--active"));
+
+  document
+    .querySelector(`.dots__dot[data-slide="${slide}"]`)
+    .classList.add("dots__dot--active");
+};
+
+// This is the starting function that gets triggered on load
+const init = function () {
+  updateDisplay(0);
+  moveTheSlider();
+  createDots();
+  activateDot(0);
+};
+
+init();
+
+// Event listeners
+
+// This listener, gets fired when the randomButton is clicked and it creates a random number between 0 and the array length, update the count with that number (I've updated the count with the random number
 // instead of passing it directly because so, I can continue to see the reviews from the array position that the random number sets) and passing that number in the updateDisplay() function.
 randomButton.addEventListener("click", function () {
   function random(array) {
@@ -116,4 +151,16 @@ randomButton.addEventListener("click", function () {
   }
   count = random(reviews);
   updateDisplay(count);
+  activateDot(count);
+});
+
+// This listener manage the behaviour when the user clicks directly on the dots
+dotContainer.addEventListener("click", function (e) {
+  if (e.target.classList.contains("dots__dot")) {
+    const { slide } = e.target.dataset;
+    console.log(slide);
+    count = Number(slide);
+    updateDisplay(slide);
+    activateDot(slide);
+  }
 });
